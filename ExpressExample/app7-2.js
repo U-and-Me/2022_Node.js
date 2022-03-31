@@ -19,21 +19,20 @@ app.use(bodyParser.urlencoded({extended : false}));
 // body-parser를 이용해 application/json 파싱
 app.use(bodyParser.json());
 
-// app.use('/public', static(path.join(__dirname, 'public')));
-app.use('/', static(path.join(__dirname, 'public')));
+app.use('/public', static(path.join(__dirname, 'public')));
 
 // 미들웨어에서 파라미터 확인
 app.use(function(req, res, next){
     console.log('첫번째 미들웨어에서 요청을 처리함.');
+    
+    // index.html이 나옴
+    // http://localhost:3000/public/
+    //res.redirect('/');
 
-    var paramId = req.body.id || req.query.id;
-    var paramPassword = req.body.password || req.query.password;
-
-    res.writeHead('200', {'Content-Type':'text/html; charset=utf8'});
-    res.write('<h1>Express 서버에 응답한 결과입니다.</h1>');
-    res.write('<div><p>Param id : ' + paramId + '</p></div>');
-    res.write('<div><p>Param password : ' + paramPassword + '</p></div>');
-    res.end();
+   // login.html이 나옴
+   // http://localhost:3000/public/login.html
+    res.redirect('./login.html');
+   // res.redirect('/login.html');
 });
 
 http.createServer(app).listen(3000, function(){
