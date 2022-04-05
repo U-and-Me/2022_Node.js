@@ -25,30 +25,28 @@ app.use('/public', static(path.join(__dirname, 'public')));
 var router = express.Router();
 
 // 라우팅 함수 등록
-router.route('/process/login/:name').post(function(req, res){
-    console.log('/process/login/:name 처리함.');
+router.route('/process/login/:id').post(function(req, res){
+    console.log('/process/user/:id 처리함.');
 
-    var paramName = req.params.name;
+    // URL 파라미터 확인
+    var paramId = req.params.id;
 
-    var paramId = req.body.id || req.query.id;
+    console.log('/process/user와 토큰 %s를 이용해 처리함.', paramId);
+
+    var paramName = req.body.name || req.query.name;
     var paramPassword = req.body.password || req.query.password;
 
     res.writeHead('200', {'Content-Type':'text/html; charset=utf8'});
     res.write('<h1>Express 서버에 응답한 결과입니다.</h1>');
-    res.write('<div><p>param name : ' + paramName + '</p></div>');
     res.write('<div><p>Param id : ' + paramId + '</p></div>');
+    res.write('<div><p>param name : ' + paramName + '</p></div>');
     res.write('<div><p>Param password : ' + paramPassword + '</p></div>');
-    res.write('<br><br><a href="/public/login2.html">로그인 페이지로 돌아가기</a>');
+    res.write('<br><br><a href="/public/login4.html">로그인 페이지로 돌아가기</a>');
     res.end();
 });
 
 // 라우터 객체를 app 객체에 등록
 app.use('/', router);
-
-// 등록되지 않은 패스에 대해 페이지 오류 응답
-app.all('*', function(req, res){
-    res.status(404).send('<h1>ERROR - 페이지를 찾을 수 없습니다.</h1>');
-});
 
 http.createServer(app).listen(3000, function(){
     console.log('Express 서버가 3000번 포트에서 시작됨');
