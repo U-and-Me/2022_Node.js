@@ -7,6 +7,10 @@ var path = require('path');
 var bodyParser = require('body-parser');
 var static = require('serve-static');
 var cookieParser = require('cookie-parser');
+var errorHandler = require('errorhandler');
+
+// 에러 핸들러 모듈 사용
+var expressErrorHandler = require('express-error-handler');
 
 // 익스프레스 객체 생성
 var app = express();
@@ -29,7 +33,7 @@ app.use(cookieParser());
 var router = express.Router();
 
 // 라우팅 함수 등록
-router.route('/process/setUserCookie').post(function(req, res){
+router.route('/process/setUserCookie').get(function(req, res){
     console.log('/process/setUserCookie 호출됨.');
 
     // 쿠키 설정
@@ -51,6 +55,16 @@ router.route('/process/showCookie').get(function(req, res){
 
 // 라우터 객체를 app 객체에 등록
 app.use('/', router);
+
+//404 에러페이지 처리
+var errorHandler = expressErrorHandler({
+    static:{
+        '404':'./public/404.html'
+    }
+});
+
+app.use(expressErrorHandler.httpError(404));
+app.use(errorHandler);
 
 http.createServer(app).listen(3000, function(){
     console.log('Express 서버가 3000번 포트에서 시작됨');
