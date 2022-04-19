@@ -63,20 +63,99 @@ var storge = multer.diskStorage({
     }
 });
 
-var upload = multer({
-    storage:storge,
-    limits:{
-        files: 12,
-        fileSize: 1024 * 1024 * 1024
-    }
-});
-
 // 라우터 객체 참조
 var router = express.Router();
 
+// 로그인 라우팅 함수 - 로그인 후 세션 저장함
+router.route('/process/login').post(function(req, res) {
+	console.log('/process/login 호출됨.');
+
+	var paramId = req.body.id || req.query.id;
+	var paramPassword = req.body.password || req.query.password;
+	
+	if (req.session.user) {
+		// 이미 로그인된 상태
+		console.log('이미 로그인되어 상품 페이지로 이동합니다.');
+		
+		res.redirect('/product.html');
+	} else {
+		// 세션 저장
+		req.session.user = {
+			id: paramId,
+			name: '김유나',
+			authorized: true
+		};
+		
+		res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+		res.write('<h1>로그인 성공</h1>');
+		res.write('<div><p>Param id : ' + paramId + '</p></div>');
+		res.write('<div><p>Param password : ' + paramPassword + '</p></div>');
+		res.write("<br><br><button type = button><a href='/process/product'>상품 페이지로 이동하기</a></button"); 
+		res.write("<br><br><button type = button><a href='/photomulti3102.html'>파일업로드로 이동하기</a></button"); 
+		res.end();
+	}
+});
+
+// 로그아웃 라우팅 함수 - 로그아웃 후 세션 삭제함
+router.route('/process/logout').get(function(req, res) {
+	console.log('/process/logout 호출됨.');
+	
+	if (req.session.user) {
+		// 로그인된 상태
+		console.log('로그아웃합니다.');
+		
+		req.session.destroy(function(err) {
+			if (err) {throw err;}
+			
+			console.log('세션을 삭제하고 로그아웃되었습니다.');
+			res.redirect('/login2.html');
+		});
+	} else {
+		// 로그인 안된 상태
+		console.log('아직 로그인되어있지 않습니다.');
+		
+		res.redirect('/login2.html');
+	}
+});
+
+// 상품정보 라우팅 함수
+router.route('/process/product').get(function(req, res) {
+	console.log('/process/product 호출됨.');
+	
+	if (req.session.user) {
+		res.redirect('/product.html');
+	} else {
+		res.redirect('/login2.html');
+	}
+});
+
+// 이동1
+//multer 미들웨어 사용 : 미들웨어 사용 순서 중요  body-parser -> multer -> router
+// 파일 제한 : 12개, 1G
+var storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, 'uploads')
+    },
+    filename: function (req, file, callback) {
+        /*callback(null, file.originalname + Date.now())*/
+		//callback(null, file.originalname)
+		var extension = path.extname(file.originalname);
+		var basename = path.basename(file.originalname, extension);
+		callback(null, basename + Date.now() + extension);
+	 }
+});
+
+var upload = multer({ 
+    storage: storage,
+    limits: {
+		files: 12,
+		fileSize: 1024 * 1024 * 1024 * 1024
+	}
+});
+
 // 파일 업로드 라우팅 함수 - 로그인 후 세션 저장함
 router.route('/process/photo12').post(upload.array('photo12', 12), function(req, res){
-    console.log('/process/photomulti12 호출됨.');
+    console.log('/process/photomulti3102 호출됨.');
 
     res.writeHead('200', {'Content-Type':'text/html; charset=utf8'});
 
@@ -111,6 +190,8 @@ router.route('/process/photo12').post(upload.array('photo12', 12), function(req,
                 res.write('<p>파일 크기 : ' + size + '</p>');
                 res.end();
             }
+            
+            res.write("<br><br><button><a href='/process/product'>상품페이지로 이동하기</a></button>");
         }  
     }catch(err){
         console.dir(err.stack);
