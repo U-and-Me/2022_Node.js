@@ -211,6 +211,6 @@ var errorHandler = expressErrorHandler({
 app.use(expressErrorHandler.httpError(404));
 app.use(errorHandler);
 
-http.createServer(app).listen(3000, function(){
+http.createServer(app).listen(app.get('port'), function(){
     console.log('Express 서버가 3000번 포트에서 시작됨');
 });
